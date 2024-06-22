@@ -1,5 +1,5 @@
-import GameModel from "../models/redis/Game";
-import IGame from "../interfaces/IGame";
+import GameModel from "../Models/redis/Game";
+import IGame from "../Interfaces/IGame";
 import { Request, Response } from "express";
 import { GameId, GameSocket, PlayerId, PlayerName } from "../types";
 

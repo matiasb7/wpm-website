@@ -1,7 +1,7 @@
 // gameRouter.js
 import { Router } from "express";
-import GameController from "../controllers/GameController";
-import GameModel from "../models/redis/Game";
+import GameController from "../Controllers/GameController";
+import GameModel from "../Models/redis/Game";
 
 const gameRouter = Router();
 const gameController = new GameController({ gameModel: new GameModel() });

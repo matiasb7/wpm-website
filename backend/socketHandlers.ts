@@ -1,5 +1,5 @@
-import GameController from "./controllers/GameController";
-import GameModel from "./models/redis/Game";
+import GameController from "./Controllers/GameController";
+import GameModel from "./Models/redis/Game";
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
 

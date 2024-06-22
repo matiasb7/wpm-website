@@ -8,7 +8,7 @@ import {
   EditableKeys,
   GameState,
 } from "../../types";
-import IGame from "../../interfaces/IGame";
+import IGame from "../../Interfaces/IGame";
 
 export default class GameModel implements IGame {
   static KEY_PREFIX = "game";
