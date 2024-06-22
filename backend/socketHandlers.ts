@@ -1,8 +1,10 @@
-import GameController from "./controllers/GameController.js";
-import GameModel from "./models/redis/Game.js";
+import GameController from "./controllers/GameController";
+import GameModel from "./models/redis/Game";
+import { Server } from "socket.io";
+import { GameSocket } from "./types";
 
-const setupSocketHandlers = (io) => {
-  io.on("connection", (socket) => {
+const setupSocketHandlers = (io: Server) => {
+  io.on("connection", (socket: GameSocket) => {
     const gameController = new GameController({ gameModel: new GameModel() });
 
     socket.on("join", async (username, gameId, userId) => {
@@ -12,11 +14,13 @@ const setupSocketHandlers = (io) => {
 
       let player, players, game;
       if (!userId) {
-        ({ player, players, game } = await gameController.addPlayerToGame(
+        const result = await gameController.addPlayerToGame(
           socket,
           username,
           gameId,
-        ));
+        );
+        if (!result) return;
+        ({ player, players, game } = result);
       } else {
         ({ game, players } = await gameController.getSessionGame(gameId));
         player = players.find((player) => player.id === userId);
@@ -39,6 +43,8 @@ const setupSocketHandlers = (io) => {
         accuracy,
         winnerId,
       });
+
+      if (!socket.gameID) return;
 
       io.to(socket.gameID).emit(GameModel.EVENTS.UPDATE, {
         type: "updatePlayer",

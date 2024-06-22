@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
-import gameRouter from "./routes/gameRouter.js";
-import setupSocketHandlers from "./socketHandlers.js";
+import gameRouter from "./routes/gameRouter";
+import setupSocketHandlers from "./socketHandlers";
 
 const app = express();
 app.use(cors());

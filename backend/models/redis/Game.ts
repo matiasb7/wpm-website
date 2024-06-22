@@ -1,7 +1,16 @@
 import { randomUUID } from "node:crypto";
-import { redisClient } from "./redisClient.js";
+import { redisClient } from "./redisClient";
+import {
+  type GameId,
+  type PlayerId,
+  type PlayerName,
+  type EditableFields,
+  EditableKeys,
+  GameState,
+} from "../../types";
+import IGame from "../../interfaces/IGame";
 
-export default class GameModel {
+export default class GameModel implements IGame {
   static KEY_PREFIX = "game";
   static EXPIRATION_TIME = 3600;
   static EVENTS = {
@@ -10,24 +19,32 @@ export default class GameModel {
     WELCOME: "welcome",
     UPDATE: "update",
   };
-  static editables = ["wpm", "accuracy"];
+  static editable: EditableKeys[] = ["wpm", "accuracy"];
 
-  getGameKey = (gameId) => {
+  getGameKey = (gameId: GameId) => {
     return `${GameModel.KEY_PREFIX}:${gameId}`;
   };
 
-  getGamePlayersKey = (gameId, playerId = null) => {
+  getGamePlayersKey = (gameId: GameId, playerId: PlayerId | null = null) => {
     return (
       `${GameModel.KEY_PREFIX}:${gameId}:players` +
       (playerId ? `:${playerId}` : "")
     );
   };
 
-  get = async (gameId) => {
-    return await redisClient.hGetAll(this.getGameKey(gameId));
+  get = async (gameId: GameId) => {
+    // return await redisClient.hGetAll(this.getGameKey(gameId));
+    const gameData: { [key: string]: string } = await redisClient.hGetAll(
+      this.getGameKey(gameId),
+    );
+    return {
+      state: gameData.state as GameState,
+      winner: gameData.winner,
+      amountPlayers: parseInt(gameData.amountPlayers, 10),
+    };
   };
 
-  getGamePlayers = async (gameId) => {
+  getGamePlayers = async (gameId: GameId) => {
     const playerIDs = await redisClient.sMembers(
       this.getGamePlayersKey(gameId),
     );
@@ -52,9 +69,9 @@ export default class GameModel {
     return randomUUID();
   };
 
-  create = async (amountPlayers) => {
-    this.gameId = randomUUID();
-    const key = this.getGameKey(this.gameId);
+  create = async (amountPlayers: number) => {
+    const gameId = randomUUID();
+    const key = this.getGameKey(gameId);
 
     await redisClient.hSet(key, {
       state: "waiting",
@@ -63,44 +80,43 @@ export default class GameModel {
     });
 
     await redisClient.expire(key, GameModel.EXPIRATION_TIME);
-    return { gameId: this.gameId };
+    return { gameId: gameId };
   };
 
-  update = async (gameID, playerId, updates) => {
+  update = async (
+    gameID: GameId,
+    playerId: PlayerId,
+    updates: EditableFields,
+  ) => {
     if (!gameID || !playerId) return false;
-    console.log("paso el update");
     const key = this.getGamePlayersKey(gameID, playerId);
     const playerData = await redisClient.hGetAll(key);
 
-    console.log("playerData is: ", playerData);
-
-    GameModel.editables.forEach((key) => {
-      if (updates[key]) playerData[key] = updates[key];
+    GameModel.editable.forEach((key) => {
+      if (updates[key]) {
+        playerData[key] = updates[key]!.toString();
+      }
     });
 
-    console.log("update key is: ", key);
-
     await redisClient.hSet(key, playerData);
-
-    console.log(await redisClient.hGetAll(key));
+    return true;
   };
 
   addPlayer = async (
-    gameId,
-    playerName,
-    playerID = this.generatePlayerId(),
+    gameId: GameId,
+    playerName: PlayerName,
+    playerID: PlayerId = this.generatePlayerId(),
   ) => {
-    this.playerID = playerID;
-    const key = this.getGamePlayersKey(gameId, this.playerID);
+    const key = this.getGamePlayersKey(gameId, playerID);
     const player = {
-      id: this.playerID,
+      id: playerID,
       name: playerName,
       wpm: "",
       accuracy: "",
     };
 
     await redisClient.hSet(key, player);
-    await redisClient.sAdd(this.getGamePlayersKey(gameId), this.playerID);
+    await redisClient.sAdd(this.getGamePlayersKey(gameId), playerID);
 
     return player;
   };
