@@ -1,7 +1,7 @@
 import GameModel from "../Models/redis/Game";
 import IGame from "../Interfaces/IGame";
 import { Request, Response } from "express";
-import { GameId, GameSocket, PlayerId, PlayerName } from "../types";
+import { GameId, GameSocket, PlayerName } from "../types";
 
 export default class GameController {
   gameModel: IGame;
@@ -33,17 +33,24 @@ export default class GameController {
     }
   };
 
-  getSessionGame = async (id: GameId) => {
-    const game = await this.gameModel.get(id);
-    const players = await this.gameModel.getGamePlayers(id);
-    return { game, players };
+  getSessionGame = async (id: GameId, socket: GameSocket) => {
+    try {
+      const game = await this.gameModel.get(id);
+      const players = await this.gameModel.getGamePlayers(id);
+      return { game, players };
+    } catch (e) {
+      socket.emit("error", { message: "Failed to update player" });
+    }
   };
 
   getPlayers = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const players = await this.gameModel.getGamePlayers(id);
-
-    res.status(200).send(JSON.stringify({ players }));
+    try {
+      const { id } = req.params;
+      const players = await this.gameModel.getGamePlayers(id);
+      res.status(200).send(JSON.stringify({ players }));
+    } catch (e) {
+      res.status(400).send("Game not found");
+    }
   };
 
   update = async (socket: GameSocket, updates: {}) => {

@@ -6,6 +6,9 @@ import gameRouter from "./routes/gameRouter";
 import setupSocketHandlers from "./socketHandlers";
 
 const app = express();
+const port = process.env.BE_PORT ?? 3000;
+const frontendPort = process.env.FE_PORT ?? 5173;
+
 app.use(cors());
 app.use(express.json());
 app.use("/game", gameRouter);
@@ -14,13 +17,13 @@ const server = createServer(app);
 const io = new Server(server, {
   connectionStateRecovery: {},
   cors: {
-    origin: "http://localhost:5173",
+    origin: `http://localhost:${frontendPort}`,
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
 
 setupSocketHandlers(io);
-server.listen("3000", () => {
-  console.log(`Server running on port 3000`);
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });

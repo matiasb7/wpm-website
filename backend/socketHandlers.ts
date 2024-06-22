@@ -22,7 +22,10 @@ const setupSocketHandlers = (io: Server) => {
         if (!result) return;
         ({ player, players, game } = result);
       } else {
-        ({ game, players } = await gameController.getSessionGame(gameId));
+        const result = await gameController.getSessionGame(gameId, socket);
+        if (!result) return;
+
+        ({ game, players } = result);
         player = players.find((player) => player.id === userId);
       }
 
