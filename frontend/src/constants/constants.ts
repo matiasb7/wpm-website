@@ -1,10 +1,10 @@
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
+
 export const gameStatus = {
   WAITING: 'waiting',
   PLAYING: 'playing',
   FINISHED: 'finished',
 };
-
-export const API_URL = 'http://localhost:3000';
 
 export const endpoints = {
   GAME: API_URL + '/game',
