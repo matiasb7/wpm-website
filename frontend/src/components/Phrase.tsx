@@ -4,7 +4,7 @@ interface PhraseProps {
 }
 export default function Phrase({ phraseArray, currentKeyIndex }: PhraseProps) {
   return (
-    <ul className='mb-10 border-b-2 pb-4'>
+    <ul data-testid='phrase' className='mb-10 border-b-2 pb-4'>
       {phraseArray.map((letter, index) => {
         const keyClass =
           index === currentKeyIndex
