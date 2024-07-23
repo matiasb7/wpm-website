@@ -19,6 +19,7 @@ export default class GameModel implements IGame {
     NEW_PLAYER: "newPlayer",
     WELCOME: "welcome",
     UPDATE: "update",
+    ERROR: "error",
   };
   static editable: EditableKeys[] = ["wpm", "accuracy"];
 
@@ -120,5 +121,25 @@ export default class GameModel implements IGame {
     await redisClient.sAdd(this.getGamePlayersKey(gameId), playerID);
 
     return player;
+  };
+
+  joinGame = async (
+    gameId: GameId,
+    playerName: PlayerName,
+    playerID?: PlayerId | undefined,
+  ) => {
+    let output = null;
+    if (!playerID) {
+      const player = await this.addPlayer(gameId, playerName);
+      const players = await this.getGamePlayers(gameId);
+      const game = await this.get(gameId);
+      output = { game, players, player };
+    } else {
+      const game = await this.get(gameId);
+      const players = await this.getGamePlayers(gameId);
+      const player = players.find((player) => player.id === playerID)!;
+      output = { game, players, player };
+    }
+    return output;
   };
 }

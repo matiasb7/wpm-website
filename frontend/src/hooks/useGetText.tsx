@@ -12,8 +12,8 @@ export default function useGetText(language: languagesType = languages.en) {
   };
 
   const fetchText = async () => {
-    // const fetchedText = await getRandomText(language);
-    const fetchedText = 'da'
+    const fetchedText = await getRandomText(language);
+    // const fetchedText = 'da'
     setText(fetchedText);
   };
 

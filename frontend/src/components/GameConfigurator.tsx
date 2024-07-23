@@ -10,8 +10,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import React from 'react';
-import { endpoints } from '@/constants/constants.ts';
 import { useNavigate } from 'react-router-dom';
+import { startGame } from '@/services/gameService.ts';
 
 function GameConfigurator() {
   let navigate = useNavigate();
@@ -23,15 +23,7 @@ function GameConfigurator() {
     const name = form.elements.namedItem('username') as HTMLInputElement;
 
     try {
-      const response = await fetch(endpoints.START_GAME, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amountPlayers: amount.value }),
-      });
-      const { gameId } = await response.json();
-
+      const { gameId } = await startGame(amount.value);
       if (gameId) {
         const encodedUserName = encodeURIComponent(name.value);
         navigate(`/game/${gameId}?username=${encodedUserName}`);

@@ -8,6 +8,8 @@ import Game from '../components/Game.tsx';
 import GameConfigurator from '@/components/GameConfigurator.tsx';
 import useGetSession from '@/hooks/useGetSession.tsx';
 import { buttonVariants } from '@/components/ui/button.tsx';
+import { Toaster } from '@/components/ui/toaster.tsx';
+import { useToast } from '@/components/ui/use-toast.ts';
 
 function Home() {
   const changeTextRef = useRef<HTMLInputElement>(null);
@@ -16,6 +18,7 @@ function Home() {
   const { fetchText, setText, phraseArray } = useGetText(language);
   const { getSession } = useGetSession();
   const session = getSession();
+  const { toast } = useToast();
 
   const onFinish = ({ wpm, timeStamp, accuracy }: ScoreWPM) => {
     setWPMScore(
@@ -39,6 +42,7 @@ function Home() {
 
   return (
     <main>
+      <Toaster />
       <h1 className='text-5xl font-bold mb-16'>Typing Test</h1>
       <section>
         <Game phraseArray={phraseArray} onFinish={onFinish} />
@@ -58,8 +62,13 @@ function Home() {
               <button
                 type='button'
                 className={`h-btn rounded-r ${language === languages.es ? '!bg-gray-400' : ''}`}
+                // onClick={() => {
+                //   setLanguage(languages.es);
+                // }}
                 onClick={() => {
-                  setLanguage(languages.es);
+                  toast({
+                    description: "Spanish isn't available yet, we're working on it...",
+                  });
                 }}
               >
                 {languages.es.toUpperCase()}

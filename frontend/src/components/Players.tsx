@@ -25,14 +25,17 @@ export default function Players({ players }: PhraseProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {orderedPlayers.map(({ id, wpm, name, accuracy }, index) => (
-          <TableRow key={id} className=''>
-            <TableCell className='font-medium'>{wpm ? index + 1 : ''}</TableCell>
-            <TableCell className='font-medium'>{name}</TableCell>
-            <TableCell>{accuracy}</TableCell>
-            <TableCell>{wpm}</TableCell>
-          </TableRow>
-        ))}
+        {orderedPlayers.map(({ id, wpm, name, accuracy }, index) => {
+          const accuracyPercentage = accuracy ? Math.round(Number(accuracy) * 100) + '%' : '-';
+          return (
+            <TableRow key={id} className=''>
+              <TableCell className='font-medium'>{wpm ? index + 1 : '-'}</TableCell>
+              <TableCell className='font-medium'>{name || '-'}</TableCell>
+              <TableCell>{accuracyPercentage}</TableCell>
+              <TableCell>{wpm}</TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

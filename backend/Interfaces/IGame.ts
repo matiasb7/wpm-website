@@ -14,6 +14,11 @@ export default interface IGame {
   getGamePlayers(gameId: GameId): Promise<Array<Player>>;
   generatePlayerId(): PlayerId;
   create(amountPlayers: number): Promise<{ gameId: GameId }>;
+  joinGame(
+    gameId: GameId,
+    playerName: PlayerName,
+    playerID?: PlayerId | undefined,
+  ): Promise<{ player: Player; players: Player[]; game: Game } | null>;
   update(
     gameId: GameId,
     playerId: PlayerId,

@@ -3,10 +3,13 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 import gameRouter from "./routes/gameRouter";
-import setupSocketHandlers from "./socketHandlers";
 import { ServerOptions } from "socket.io";
 import path from "path";
 import { isProduction } from "./utils/environment";
+import GameController from "./Controllers/GameController";
+import GameModel from "./Models/redis/Game";
+import { GameSocket } from "./types";
+import SocketHandler from "./routes/socketHandler";
 
 const app = express();
 const port = process.env.BE_PORT ?? 3000;
@@ -31,13 +34,27 @@ if (!isProduction()) {
 } else {
   const frontendPath = path.resolve(__dirname, "../frontend/dist");
   app.use(express.static(frontendPath));
-
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(frontendPath, "index.html"));
   });
 }
 
 const io = new Server(server, opts);
+
+const setupSocketHandlers = (io: Server) => {
+  const gameController = new GameController({ gameModel: new GameModel() });
+  io.on("connection", (socket: GameSocket) => {
+    const timeoutId = setTimeout(() => {
+      socket.disconnect(true);
+    }, 50000);
+    socket.onAny(() => clearTimeout(timeoutId));
+
+    const socketHandler = new SocketHandler(io, socket, gameController);
+
+    socket.on("join", socketHandler.join);
+    socket.on("finish", socketHandler.finish);
+  });
+};
 
 setupSocketHandlers(io);
 server.listen(port, () => {

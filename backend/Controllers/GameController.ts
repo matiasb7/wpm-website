@@ -1,7 +1,7 @@
-import GameModel from "../Models/redis/Game";
 import IGame from "../Interfaces/IGame";
 import { Request, Response } from "express";
-import { GameId, GameSocket, PlayerName } from "../types";
+import { GameId, PlayerId, PlayerName } from "../types";
+import { UserFriendlyError } from "../utils/error";
 
 export default class GameController {
   gameModel: IGame;
@@ -33,16 +33,6 @@ export default class GameController {
     }
   };
 
-  getSessionGame = async (id: GameId, socket: GameSocket) => {
-    try {
-      const game = await this.gameModel.get(id);
-      const players = await this.gameModel.getGamePlayers(id);
-      return { game, players };
-    } catch (e) {
-      socket.emit("error", { message: "Failed to update player" });
-    }
-  };
-
   getPlayers = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -53,39 +43,30 @@ export default class GameController {
     }
   };
 
-  update = async (socket: GameSocket, updates: {}) => {
-    try {
-      if (!socket.gameID || !socket.playerID) {
-        socket.emit("error", { message: "Missing properties." });
-        return;
-      }
-
-      await this.gameModel.update(socket.gameID, socket.playerID, updates);
-      socket.in(socket.gameID);
-    } catch (e) {
-      socket.emit("error", { message: "Failed to update player" });
+  join = async ({
+    username,
+    gameId,
+    userId,
+  }: {
+    username: PlayerName;
+    gameId: GameId;
+    userId: PlayerId | undefined;
+  }) => {
+    if (!username && !gameId) throw new Error("Missing properties.");
+    const gameData = await this.gameModel.joinGame(gameId, username, userId);
+    if (!gameData) {
+      throw new UserFriendlyError({
+        message: "There was an issue adding the player to the game.",
+      });
     }
+    return gameData;
   };
 
-  addPlayerToGame = async (
-    socket: GameSocket,
-    username: PlayerName,
-    gameId: GameId,
-  ) => {
-    try {
-      const player = await this.gameModel.addPlayer(gameId, username);
-      const players = await this.gameModel.getGamePlayers(gameId);
-      const game = await this.gameModel.get(gameId);
-
-      socket.to(gameId).emit(GameModel.EVENTS.UPDATE, {
-        type: "newPlayers",
-        players,
-      });
-
-      return { player, players, game };
-    } catch (e) {
-      socket.emit("error", { message: "Failed to add player" });
-      return false;
+  update = async (gameId: GameId, playerId: PlayerId, updates: {}) => {
+    if (!gameId || !playerId || !updates) {
+      throw new Error("Missing update properties.");
     }
+
+    return await this.gameModel.update(gameId, playerId, updates);
   };
 }
