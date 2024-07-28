@@ -10,6 +10,7 @@ import GameController from "./Controllers/GameController";
 import GameModel from "./Models/redis/Game";
 import { GameSocket } from "./types";
 import SocketHandler from "./routes/socketHandler";
+import PhraseLocal from "./Models/PhraseLocal";
 
 const app = express();
 const port = process.env.BE_PORT ?? 3000;
@@ -27,8 +28,9 @@ const opts: Partial<ServerOptions> = {
 
 if (!isProduction()) {
   opts.cors = {
-    origin: `http://localhost:${frontendPort}`,
-    methods: ["GET", "POST"],
+    // origin: `http://localhost:${frontendPort}`,
+    origin: `*`,
+    methods: ["GET", "POST", "UPDATE", "DELETE"],
     credentials: true,
   };
 } else {
@@ -42,7 +44,9 @@ if (!isProduction()) {
 const io = new Server(server, opts);
 
 const setupSocketHandlers = (io: Server) => {
-  const gameController = new GameController({ gameModel: new GameModel() });
+  const gameController = new GameController({
+    gameModel: new GameModel({ phraseModel: new PhraseLocal() }),
+  });
   io.on("connection", (socket: GameSocket) => {
     const timeoutId = setTimeout(() => {
       socket.disconnect(true);
@@ -53,6 +57,7 @@ const setupSocketHandlers = (io: Server) => {
 
     socket.on("join", socketHandler.join);
     socket.on("finish", socketHandler.finish);
+    socket.on("quit", socketHandler.quit);
   });
 };
 

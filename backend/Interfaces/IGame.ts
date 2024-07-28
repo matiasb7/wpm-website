@@ -8,17 +8,23 @@ import {
 } from "../types";
 
 export default interface IGame {
+  settings: { maxPlayers: number; minPlayers: number };
   getGameKey(gameId: GameId): string;
   getGamePlayersKey(gameId: GameId, playerId: PlayerId | null): string;
   get(gameId: GameId): Promise<Game>;
   getGamePlayers(gameId: GameId): Promise<Array<Player>>;
   generatePlayerId(): PlayerId;
-  create(amountPlayers: number): Promise<{ gameId: GameId }>;
+  create(amountPlayers: number): Promise<{ gameId: GameId; phrase: string }>;
   joinGame(
     gameId: GameId,
     playerName: PlayerName,
     playerID?: PlayerId | undefined,
-  ): Promise<{ player: Player; players: Player[]; game: Game } | null>;
+  ): Promise<{
+    player: Player;
+    players: Player[];
+    game: Game;
+    shouldStartGame: boolean;
+  } | null>;
   update(
     gameId: GameId,
     playerId: PlayerId,
@@ -29,4 +35,5 @@ export default interface IGame {
     playerName: PlayerName,
     playerId?: PlayerId,
   ): Promise<Player>;
+  quitGame(userId: PlayerId, gameId: GameId): Promise<boolean>;
 }

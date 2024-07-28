@@ -11,3 +11,7 @@ export class SocketCustomError extends Error {
     this.name = "SocketCustomError";
   }
 }
+
+export const ERROR_MESSAGES: Record<string, string> = {
+  general: "There was an error, please try again later.",
+};

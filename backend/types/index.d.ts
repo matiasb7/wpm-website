@@ -5,15 +5,21 @@ export type PlayerId = string;
 export type PlayerName = string;
 export type GameState = "waiting" | "playing" | "finished";
 
-type EditableKeys = "wpm" | "accuracy";
-type EditableFields = {
+export type EditableKeys = "wpm" | "accuracy";
+export type EditableFields = {
   [key in EditableKeys]?: string;
+};
+
+type GameEditableKeys = "state";
+export type GameEditableFields = {
+  [key in GameEditableKeys]?: string;
 };
 
 interface Game {
   state: GameState;
   winner: PlayerId;
   amountPlayers: number;
+  phrase: string;
 }
 
 interface Player {

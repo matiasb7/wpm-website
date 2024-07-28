@@ -13,11 +13,24 @@ export default class GameController {
   start = async (req: Request, res: Response) => {
     const { amountPlayers } = req.body;
     if (!amountPlayers) {
-      res.status(400).send("name or amountPlayers missing");
+      res.status(400).send("Please provide amount of players.");
+      return;
     }
+
+    const players = Number(amountPlayers);
+    if (
+      players > this.gameModel.settings.maxPlayers ||
+      players < this.gameModel.settings.minPlayers
+    ) {
+      res
+        .status(400)
+        .send("Please provide amount of players between 1 and 10.");
+      return;
+    }
+
     try {
-      const { gameId } = await this.gameModel.create(amountPlayers);
-      res.status(200).send(JSON.stringify({ gameId }));
+      const { gameId, phrase } = await this.gameModel.create(amountPlayers);
+      res.status(200).send(JSON.stringify({ gameId, phrase }));
     } catch (e) {
       res.status(500).send("error creating game");
     }
@@ -62,11 +75,17 @@ export default class GameController {
     return gameData;
   };
 
+  quit = async ({ userId, gameId }: { gameId: GameId; userId: PlayerId }) => {
+    if (!userId && !gameId) throw new Error("Missing properties.");
+    await this.gameModel.quitGame(gameId, userId);
+    const players = await this.gameModel.getGamePlayers(gameId);
+    return { players };
+  };
+
   update = async (gameId: GameId, playerId: PlayerId, updates: {}) => {
-    if (!gameId || !playerId || !updates) {
+    if (!gameId || !updates) {
       throw new Error("Missing update properties.");
     }
-
-    return await this.gameModel.update(gameId, playerId, updates);
+    return this.gameModel.update(gameId, playerId, updates);
   };
 }
