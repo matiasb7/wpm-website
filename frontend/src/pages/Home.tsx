@@ -41,10 +41,10 @@ function Home() {
   };
 
   return (
-    <main>
+    <main className='p-[2rem]'>
       <Toaster />
       <h1 className='text-5xl font-bold mb-16'>Typing Test</h1>
-      <section>
+      <section className='fadeIn'>
         <Game phraseArray={phraseArray} onFinish={onFinish} />
         <aside className='hidden md:flex mt-16 min-w-[175px] flex-wrap justify-center items-center gap-10'>
           <div className='flex gap-4 items-center'>
@@ -98,12 +98,22 @@ function Home() {
           accuracy={WPMScore[WPMScore.length - 1]?.accuracy}
         />
       )}
-      {!session && <GameConfigurator />}
-      {session && (
-        <a className={buttonVariants({ variant: 'secondary' }) + ' mt-10'} href='/game/current'>
-          Join Current Game
-        </a>
-      )}
+      <div className='flex justify-center gap-5 items-center mt-10 fadeIn'>
+        {session && (
+          <div className='flex justify-center gap-5 items-center'>
+            <a
+              className={
+                buttonVariants({ variant: 'secondary' }) + ' bg-green-300 hover:bg-green-400'
+              }
+              href='/game/current'
+            >
+              Join Current Game
+            </a>
+            <span>or</span>
+          </div>
+        )}
+        <GameConfigurator buttonText={session ? 'Create New Game' : 'Create Game'} />
+      </div>
     </main>
   );
 }

@@ -1,7 +1,8 @@
 interface LoaderProps {
   isLoading: boolean;
+  className?: string;
 }
-export default function Loader({ isLoading }: LoaderProps) {
+export default function Loader({ isLoading, className }: LoaderProps) {
   if (!isLoading) return '';
   return (
     <svg
@@ -14,7 +15,7 @@ export default function Loader({ isLoading }: LoaderProps) {
       strokeWidth='2'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className={'animate-spin'}
+      className={'animate-spin ' + className}
     >
       <path d='M21 12a9 9 0 1 1-6.219-8.56' />
     </svg>

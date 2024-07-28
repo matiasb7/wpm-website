@@ -3,6 +3,7 @@ import GameWrapper from '@/components/GameWrapper.tsx';
 import useValidGameId from '@/hooks/useValidGameId.tsx';
 import useGetSession from '@/hooks/useGetSession.tsx';
 import Loader from '@/components/Loader.tsx';
+import { Toaster } from '@/components/ui/toaster.tsx';
 
 function GamePage() {
   const { getSession } = useGetSession();
@@ -24,10 +25,13 @@ function GamePage() {
   const { isValidId } = useValidGameId(gameId);
 
   return (
-    <main>
+    <main className='p-[2rem]'>
+      <Toaster />
       <h1 className='text-5xl font-bold mb-7'>Typing Race</h1>
-      {isValidId === 'loading' && <Loader isLoading={true} />}
       {isValidId && gameId && <GameWrapper gameID={gameId} username={username} />}
+      {isValidId === 'loading' && (
+        <Loader className='justify-center flex w-full' isLoading={true} />
+      )}
       {!isValidId && (
         <h2 className='text-3xl font-semibold border rounded py-3 px-3 mx-auto w-fit border-red-700 text-red-700'>
           Invalid game ID

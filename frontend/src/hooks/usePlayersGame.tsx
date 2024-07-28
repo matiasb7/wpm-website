@@ -1,13 +1,25 @@
 import { useState } from 'react';
 import { Game as GameInterFace, Player } from '../types/index.js';
+import { gameStatus } from '@/constants/constants.ts';
 
 export default function usePlayersGame() {
   const [game, setGame] = useState<GameInterFace>({
-    status: 'waiting',
+    status: gameStatus.WAITING,
     winner: '',
     players: [],
     user: null,
+    phrase: '',
+    firstLoad: true,
   });
+
+  const updateGame = (props: object) => {
+    setGame((prevGame) => {
+      return {
+        ...prevGame,
+        ...props,
+      };
+    });
+  };
 
   const setPlayers = (players: Player[]) => {
     setGame((prevGame) => {
@@ -43,5 +55,5 @@ export default function usePlayersGame() {
     });
   };
 
-  return { game, setGame, addPlayer, updatePlayer, setPlayers };
+  return { game, setGame, addPlayer, updatePlayer, setPlayers, updateGame };
 }

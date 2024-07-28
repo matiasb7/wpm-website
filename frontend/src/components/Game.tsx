@@ -1,18 +1,20 @@
 import { useHandleKey } from '../hooks/useHandleKey.tsx';
 import Phrase from './Phrase.tsx';
 import KeyboardWrapper from './keyboard.tsx';
-import { type ScoreWPM } from '../types';
+import { type ScoreWPM } from '@/types';
 
-interface PhraseProps {
+interface GameProps {
   phraseArray: string[];
   onFinish: (props: ScoreWPM) => void;
   onStart?: () => void | undefined;
+  beforeStart?: () => boolean;
 }
-export default function Game({ phraseArray, onFinish, onStart }: PhraseProps) {
+export default function Game({ phraseArray, onFinish, onStart, beforeStart }: GameProps) {
   const { inputKey, onKeyPress, currentKeyIndex } = useHandleKey({
     phraseArray,
     onFinish,
     onStart,
+    beforeStart,
   });
   return (
     <div className='w-full'>

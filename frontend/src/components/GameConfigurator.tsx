@@ -12,9 +12,17 @@ import { Label } from '@/components/ui/label';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { startGame } from '@/services/gameService.ts';
+import { useToast } from '@/components/ui/use-toast.ts';
 
-function GameConfigurator() {
+function GameConfigurator({
+  buttonClass,
+  buttonText,
+}: {
+  buttonClass?: string;
+  buttonText: string;
+}) {
   let navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,21 +31,31 @@ function GameConfigurator() {
     const name = form.elements.namedItem('username') as HTMLInputElement;
 
     try {
-      const { gameId } = await startGame(amount.value);
-      if (gameId) {
+      const startGameResponse = await startGame(amount.value);
+      if (startGameResponse?.error) {
+        toast({
+          variant: 'destructive',
+          description:
+            startGameResponse?.errorMessage || 'There was an error, please try again later.',
+        });
+      }
+
+      if (startGameResponse?.gameId) {
         const encodedUserName = encodeURIComponent(name.value);
-        navigate(`/game/${gameId}?username=${encodedUserName}`);
+        navigate(`/game/${startGameResponse.gameId}?username=${encodedUserName}`);
       }
     } catch (error) {
-      console.error(error);
+      toast({
+        description: 'There was an error, please try again later.',
+      });
     }
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className='text-gray-800 mt-5' variant='outline'>
-          Create Game
+        <Button className={buttonClass} variant='secondary'>
+          {buttonText}
         </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-[425px]'>
@@ -53,7 +71,8 @@ function GameConfigurator() {
               <Input
                 required
                 type='number'
-                min='1'
+                min='2'
+                max='10'
                 defaultValue='2'
                 id='amount'
                 name='amount'
@@ -64,7 +83,14 @@ function GameConfigurator() {
               <Label htmlFor='name' className='text-right'>
                 Username
               </Label>
-              <Input required id='username' name='name' value='Matias' className='col-span-3' />
+              <Input
+                required
+                id='username'
+                name='name'
+                defaultValue='Matias'
+                maxLength={32}
+                className='col-span-3'
+              />
             </div>
           </div>
           <DialogFooter>

@@ -32,7 +32,7 @@ export default function Players({ players }: PhraseProps) {
               <TableCell className='font-medium'>{wpm ? index + 1 : '-'}</TableCell>
               <TableCell className='font-medium'>{name || '-'}</TableCell>
               <TableCell>{accuracyPercentage}</TableCell>
-              <TableCell>{wpm}</TableCell>
+              <TableCell>{wpm || '-'}</TableCell>
             </TableRow>
           );
         })}

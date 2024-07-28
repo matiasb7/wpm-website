@@ -1,9 +1,9 @@
-import { type languagesType } from '../types';
+import { type languagesType } from '@/types';
 import { useEffect, useState } from 'react';
-import { getRandomText } from '../utils/getRandomText.tsx';
 import { languages } from '../constants/languages.ts';
+import { getText } from '@/services/gameService.ts';
 
-export default function useGetText(language: languagesType = languages.en) {
+export default function useGetText(language: languagesType = languages.en, phrase?: string) {
   const [phraseArray, setPhraseArray] = useState<string[]>([]);
 
   const setText = (text: string) => {
@@ -12,16 +12,23 @@ export default function useGetText(language: languagesType = languages.en) {
   };
 
   const fetchText = async () => {
-    const fetchedText = await getRandomText(language);
-    // const fetchedText = 'da'
-    setText(fetchedText);
+    try {
+      const text = await getText({ lang: language });
+      setText(text.phrase);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   useEffect(() => {
-    fetchText().catch((e) => {
-      console.error(e);
-    });
-  }, [language]);
+    if (!phrase) {
+      fetchText().catch((e) => {
+        console.error(e);
+      });
+    } else {
+      setText(phrase);
+    }
+  }, [language, phrase]);
 
   return { fetchText, phraseArray, setText };
 }

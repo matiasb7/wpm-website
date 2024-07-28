@@ -73,13 +73,16 @@
 }
 
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  overflow: hidden;
   text-align: center;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 1280px;
 }
 
 :root {
@@ -102,4 +105,28 @@
 
 .h-input {
   @apply bg-gray-300 rounded text-gray-800 font-bold py-2 px-4 placeholder-gray-600;
+}
+
+.fadeIn {
+  opacity: 0;
+  animation: fadeIn 0.6s ease-in forwards;
+}
+
+
+.fromRight {
+  opacity: 0;
+  transform: translatex(100vh);
+  animation: fadeIn 0.8s forwards, transformNone 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes transformNone {
+  to {
+    transform: none;
+  }
 }

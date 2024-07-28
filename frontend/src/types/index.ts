@@ -25,12 +25,15 @@ export interface Player {
   wpm: number;
   accuracy: number;
 }
+export type Players = Player[];
 
 export interface Game {
   status: gameStatus;
   winner: string;
   players: Player[];
   user: string | null;
+  phrase: string;
+  firstLoad: boolean;
 }
 
 export interface ScoreWPMInterface extends Array<ScoreWPM> {}
